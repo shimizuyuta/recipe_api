@@ -18,7 +18,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       recipe_time: {
-        type: Sequelize.DATE
+        type: Sequelize.INTEGER
       },
       recipe_description: {
         type: Sequelize.TEXT

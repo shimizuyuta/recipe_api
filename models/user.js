@@ -17,7 +17,6 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING,
-    recipe_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'user',
