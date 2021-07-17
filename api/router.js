@@ -3,6 +3,7 @@ const router = express()
 // const db = require('../models/user')
 const User = require('../models/user');
 var db = require('../models/');
+const { check, validationResult } = require('express-validator');
 
 router.get('/',(req,res)=>{
     console.log('get /')
@@ -43,6 +44,11 @@ router.get('/recipe',async(req,res)=>{
     }
  
  
+ })
+
+ router.get('/user/:id',(req,res)=>{
+     console.log('params',req.params.id)
+     res.send(200)
  })
 
 
