@@ -10,14 +10,13 @@ router.get('/',(req,res)=>{
     res.send(200,{message:'you can do it'})
 })
 
-router.get('/users',async(req,res)=>{
+router.get('/users',async(req,res,next)=>{
+
    try{
-    // db.users.findAll({}).then((instances) => { // usersのところが自分で作成したモデル
-    //     console.log(instances); // usersの中身を全て取得した結果
-    //   });
-    await db.user.findAll().then((response)=>{
-        // console.log(response)
-        res.send(response)
+
+    await db.user.findAll()
+    .then((response)=>{
+        if(response)res.send(response)
     })
 
    }catch(e){
@@ -31,12 +30,12 @@ router.get('/users',async(req,res)=>{
 
 router.get('/recipe',async(req,res)=>{
     try{
-     // db.users.findAll({}).then((instances) => { // usersのところが自分で作成したモデル
-     //     console.log(instances); // usersの中身を全て取得した結果
-     //   });
-     await db.recipe.findAll().then((response)=>{
-         // console.log(response)
+     await db.recipe.findAll()
+     .then((response)=>{
          res.send(response)
+     })
+     .catch(()=>{
+         console.log('aaaaaaaaaaaaaa')
      })
  
     }catch(e){
@@ -50,6 +49,5 @@ router.get('/recipe',async(req,res)=>{
      console.log('params',req.params.id)
      res.send(200)
  })
-
 
 module.exports = router;

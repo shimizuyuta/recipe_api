@@ -4,13 +4,17 @@ const express = require('express');
 const app = express();
 const router = require('./router')
 const PORT = process.env.PORT || 3000;
+const timeout = require('connect-timeout');
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(function(req, res, next) {
   res.header('Content-Type', 'application/json; charset=utf-8');
   next();
 });
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(timeout(parseInt(600)));
+app.use(haltOnTimedout);
+
 app.use('/',router)
 
 
@@ -20,8 +24,13 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
-  res.sendStatus(err.status || 500);
+  res.status(500).send({'error_message______':err.message})
 });
+
+function haltOnTimedout(req, res, next){
+  console.log('haltOnTimeout: begin',req.timedout)
+  if (!req.timedout) next()
+}
 
 
 app.listen(PORT, () => {
