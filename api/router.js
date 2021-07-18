@@ -28,17 +28,18 @@ router.get('/users',async(req,res,next)=>{
 })
 
 
-router.get('/recipe',async(req,res)=>{
+router.get('/recipes',async(req,res)=>{
     try{
      await db.recipe.findAll()
      .then((response)=>{
          res.send(response)
      })
      .catch(()=>{
-         console.log('aaaaaaaaaaaaaa')
+         res.send({'error':e.message})
      })
  
-    }catch(e){
+    }
+    catch(e){
         res.send({'error':e.message})
     }
  
@@ -46,8 +47,16 @@ router.get('/recipe',async(req,res)=>{
  })
 
  router.get('/user/:id',(req,res)=>{
-     console.log('params',req.params.id)
-     res.send(200)
+     console.log('params_id',req.params.id)
+     const userId = req.params.id
+     db.user.findOne({where:{id:userId}})
+     .then(user=>{
+        console.log('user',user)
+         res.send(user)
+     })
+     .catch((e)=>{
+         res.send({'userId_error':e.message})
+     })
  })
 
 module.exports = router;

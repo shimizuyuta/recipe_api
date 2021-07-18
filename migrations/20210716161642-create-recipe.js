@@ -38,7 +38,7 @@ module.exports = {
         type: Sequelize.DATE
       },
       user_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: { model: 'Users', key: 'id'}, // 外部キー
         onUpdate: 'cascade',  // （任意）連動して自動更新する場合
