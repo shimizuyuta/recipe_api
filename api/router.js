@@ -9,6 +9,20 @@ const jwt = require('jsonwebtoken');
 const { uuid } = require('uuidv4');
 const { check, validationResult } = require('express-validator');
 
+const verifyToken = (req,res,next) =>{
+    const authHeader = req.headers["authorization"];
+    if((authHeader !==undefined) && (authHeader.split(" ")[0] === "Bearer")){
+        try{
+           const token = jwt.verify(authHeader.split[1],process.env.JWT_SECRET);
+           console.log('token_______',token)
+           
+           next();
+
+        }catch(e){
+            return res.status(401).send({message:`invalid token ${e.message}`})
+        }
+    }
+}
 router.get('/',(req,res)=>{
     console.log('get /')
     res.send(200,{message:'you can do it'})
@@ -52,7 +66,14 @@ router.get('/recipes',async(req,res)=>{
  
  })
 
- router.get('/user/:id',(req,res)=>{
+ router.get('/user/:id',verifyToken,async(req,res)=>{
+    console.log('req.headers',req)
+    const bearToken = await req.headers['authorization'];
+    console.log(bearToken,'beartoken')
+    const bearer = await bearToken.split(' ');
+    console.log
+    const token = await bearer[1];
+    console.log('token',token)
      console.log('params_id',req.params.id)
      const userId = req.params.id
      db.user.findOne({where:{id:userId}})
@@ -100,6 +121,7 @@ router.get('/recipes',async(req,res)=>{
           process.env.JWT_SECRET,
           {exp: Math.floor(Date.now() / 1000) + (60 * 60),}
        );
+       console.log('token',token)
        return res.json({token:token})
 
      }catch(e){
@@ -110,7 +132,6 @@ router.get('/recipes',async(req,res)=>{
 
  router.post('/register',async(req,res)=>{
      try{
-
          //id password がDBにあるかを照合する
 　　　　　const user = await db.user.findOne({where:{email:req.body.email}})
          console.log('user',user)
