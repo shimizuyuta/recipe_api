@@ -13,7 +13,7 @@ app.use(function(req, res, next) {
   res.header('Content-Type', 'application/json; charset=utf-8');
   next();
 });
-app.use(timeout(parseInt(600)));
+app.use(timeout(parseInt(process.env.TIMEOUT || 6000)));
 app.use(haltOnTimedout);
 
 app.use('/',router)
