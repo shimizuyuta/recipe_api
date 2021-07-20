@@ -11,27 +11,44 @@ const { check, validationResult } = require('express-validator');
 
 const verifyToken = (req,res,next) =>{
     const authHeader = req.headers["authorization"];
+    console.log(authHeader,'authheader')
     if((authHeader !==undefined) && (authHeader.split(" ")[0] === "Bearer")){
         try{
-           const token = jwt.verify(authHeader.split[1],process.env.JWT_SECRET);
-           console.log('token_______',token)
+           const token =authHeader.split(" ")[1];
+           console.log('token_______',authHeader.split(' ')[1])
+
+           jwt.verify(token,process.env.JWT_SECRET,(err,decoded)=>{
+               if(err){
+                   console.log('eroooooooooooooooooooo')
+                   
+                   return res.status(503).send({message:'error token'})
+               }else{
+                   console.log('adddddddddddddddddd')
+                   req.token = decoded;
+                   next()
+               }
+           })
+           //tokenに含まれるidと受け取ったリクエストのuserのidが一致するか調べる
+           //tokenの有効期限が切れてないかチェックする
            
-           next();
 
         }catch(e){
             return res.status(401).send({message:`invalid token ${e.message}`})
         }
+    }else{
+        return res.status(401).send({message:`invalid token `})
     }
 }
-router.get('/',(req,res)=>{
-    console.log('get /')
+
+router.get('/',verifyToken,(req,res)=>{
+    console.log('aaaaaaaaaaaa',req)
+    console.log('get /',req.headers)
     res.send(200,{message:'you can do it'})
 })
 
 router.get('/users',async(req,res,next)=>{
 
    try{
-
     await db.user.findAll()
     .then((response)=>{
        console.log(response)
@@ -67,15 +84,8 @@ router.get('/recipes',async(req,res)=>{
  })
 
  router.get('/user/:id',verifyToken,async(req,res)=>{
-    console.log('req.headers',req)
     const bearToken = await req.headers['authorization'];
-    console.log(bearToken,'beartoken')
-    const bearer = await bearToken.split(' ');
-    console.log
-    const token = await bearer[1];
-    console.log('token',token)
-     console.log('params_id',req.params.id)
-     const userId = req.params.id
+    const userId = req.params.id
      db.user.findOne({where:{id:userId}})
      .then(user=>{
         console.log('user',user)
@@ -93,21 +103,24 @@ router.get('/recipes',async(req,res)=>{
            console.log('req.body',req.body.email)
            return res.status(200).send({message:'params miss'})
        }
+       console.log(13)
        const email = req.body.email;
        const password = req.body.password
 　　　　　　//入力されたpasswordをハッシュ化する
-       const hashed_password= bcrypt.hashSync(password, 10);
+       const salt = await bcrypt.genSalt()
+       const hashed_password= bcrypt.hashSync(password, salt);
        const match = await bcrypt.compare(
         password,
         hashed_password
        );      
-
+       console.log(2)
        if(!match)return res.status(200).send({message:'パスワードまたはメールアドレスに間違いがあります。'})
        const params ={
            where:{
             email:email,
            }
        }
+       console.log(1)
 　　　　//該当するuserが存在する場合
        const userData = await db.user.findOne(params)
        console.log(userData,'userData')
@@ -115,14 +128,15 @@ router.get('/recipes',async(req,res)=>{
        if(userData == null){
            return res.status(401).send(JSON.stringify({message:'ユーザーが見つかりません。'}))
        }
-
+       console.log(userData.id,'userData')
+　　　　
        const token = jwt.sign(
- 　　　　　{user_id:userData.id},
+ 　　　　　{id:userData.id},
           process.env.JWT_SECRET,
-          {exp: Math.floor(Date.now() / 1000) + (60 * 60),}
+          { expiresIn: 40 }
        );
        console.log('token',token)
-       return res.json({token:token})
+       return res.json({token})
 
      }catch(e){
 
