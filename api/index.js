@@ -27,10 +27,10 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
   console.log(err,'err')
   if(err.status===404){
-    res.status(404).send({'error_message______':err.message})
+    res.status(404).send({'error_message______404':err.message})
   } else{
     console.log(err.status,'err_status')
-    res.status(500).send({'error_message______':err.message})
+    res.status(500).send({'error_message______500':err.message})
 
   }
 });
