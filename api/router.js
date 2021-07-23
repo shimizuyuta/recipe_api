@@ -19,14 +19,22 @@ const verifyToken = (req,res,next) =>{
 
            jwt.verify(token,process.env.JWT_SECRET,(err,decoded)=>{
                if(err){
-                   console.log('eroooooooooooooooooooo')
+                   console.log('eroooooooooooooooooooo',err.message)
                    
                    return res.status(503).send({message:'error token'})
                }else{
-                   console.log('adddddddddddddddddd')
-                   req.token = decoded;
-                   next()
+                   console.log('adddddddddddddddddd',decoded)
+                //    req.decoded = decoded;
+                console.log('dddddsss',req.session.token)
+                console.log('dddddsss',authHeader.split(" ")[1])
+                if(req.session.token===authHeader.split(" ")[1]){
+                    next()
+                }else{
+                    return res.status(503).send({message:'Please login again'})
+                }
+                   
                }
+              
            })
            //tokenに含まれるidと受け取ったリクエストのuserのidが一致するか調べる
            //tokenの有効期限が切れてないかチェックする
@@ -40,9 +48,8 @@ const verifyToken = (req,res,next) =>{
     }
 }
 
-router.get('/',verifyToken,(req,res)=>{
-    console.log('aaaaaaaaaaaa',req)
-    console.log('get /',req.headers)
+router.post('/',verifyToken,(req,res)=>{
+    console.log('res__?______',req.session.token)
     res.send(200,{message:'you can do it'})
 })
 
@@ -96,6 +103,16 @@ router.get('/recipes',async(req,res)=>{
      })
  })
 
+ router.post('/logout',verifyToken,async(req,res)=>{
+     try{
+         console.log('aaaa')
+        req.session.token = null;
+        res.send(200);
+     }catch(e){
+
+     }
+ })
+
  router.post('/login',async(req,res,next)=>{
      try{
          //passwordとidが入っているか判定
@@ -127,16 +144,17 @@ router.get('/recipes',async(req,res)=>{
 
        if(userData == null){
            return res.status(401).send(JSON.stringify({message:'ユーザーが見つかりません。'}))
+       }　　　　
+
+       function generateToken(userData){
+           console.log(process.env.EXPIRESIN)
+           
+           return jwt.sign({id:userData.id},process.env.JWT_SECRET,{expiresIn:120})
        }
-       console.log(userData.id,'userData')
-　　　　
-       const token = jwt.sign(
- 　　　　　{id:userData.id},
-          process.env.JWT_SECRET,
-          { expiresIn: 40 }
-       );
-       console.log('token',token)
-       return res.json({token})
+       const token = generateToken(userData)
+       req.session.token = token
+       return res.json({user:userData,token:token})
+
 
      }catch(e){
 
@@ -177,13 +195,12 @@ router.get('/recipes',async(req,res)=>{
         })
      
         .catch((e)=>{
-            console.log(e.message,'error________')
-            res.send(503)
+            res.status(503).send({message:e.message})
         })
 
         
      }catch(err){
-           res.status(200).send({message:err.message})
+           res.status(200).send(err.message)
      }
  })
 
