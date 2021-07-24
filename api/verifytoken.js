@@ -12,7 +12,7 @@ const verifyToken = (req,res,next) =>{
                     next()
                 }
                 else{
-                    return res.status(503).send({message________:err})
+                    return res.status(503).send({message________c:err})
                 }
               
            })         
@@ -27,7 +27,7 @@ const verifyToken = (req,res,next) =>{
 }
 
 const generateToken = (userData)=>{    
-    return jwt.sign({id:userData.id},process.env.JWT_SECRET,{expiresIn:120})
+    return jwt.sign({id:userData.id},process.env.JWT_SECRET,{expiresIn:3600})
 }
 module.exports={
     verifyToken:verifyToken,
