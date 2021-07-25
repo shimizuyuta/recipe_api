@@ -27,6 +27,7 @@ const GetOneUser = async(req) =>{
         }
 
          const oneUser = await db.user.findOne({where:params,raw:true})
+         console.log(oneUser,'get user')
          let match = true;
          if(req.body.password!=undefined){
               match = await bcrypt.compare(
@@ -34,6 +35,7 @@ const GetOneUser = async(req) =>{
                  oneUser.password
              )
          }
+         console.log(match)
          if(oneUser!=null && match)return oneUser
          else{
              return null

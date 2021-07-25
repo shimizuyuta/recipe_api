@@ -7,12 +7,13 @@ module.exports = {
     login:async(req,res,next) =>{
        try{
        const userData = await GetOneUser(req)　
+       if(userData==null)return res.json({message:'パスワードまたはメールアドレスに間違いがあります。'})
        const token = await generateToken(userData)
        req.session.token = token
        return res.json({user:userData,token:token})        
 
        }catch(e){
-
+         return res.json({message:e.message})
        }
     },
     
