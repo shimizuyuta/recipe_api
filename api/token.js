@@ -9,9 +9,13 @@ const verifyToken = (req,res,next) =>{
 
            jwt.verify(token,process.env.JWT_SECRET,(err,decoded)=>{
                 if((!err)&&(req.session.token===authHeader.split(" ")[1])){
+                    console.log('verify_token')
+                    console.log('aaaaa',req.session)
                     next()
                 }
                 else{
+                    console.log(req.session,'session__________')
+                    console.log(authHeader.split(" ")[1])
                     return res.status(503).send({message________c:err})
                 }
               
@@ -27,7 +31,7 @@ const verifyToken = (req,res,next) =>{
 }
 
 const generateToken = (userData)=>{    
-    return jwt.sign({id:userData.id},process.env.JWT_SECRET,{expiresIn:3600})
+    return jwt.sign({id:userData.id},process.env.JWT_SECRET,{expiresIn:"1h"})
 }
 module.exports={
     verifyToken:verifyToken,

@@ -3,13 +3,10 @@ const { response } = require('express');
 var db = require('../../models');
 const bcrypt = require('bcrypt');
 
-const GetUsers = (req,res,next) =>{
+const GetUsers = async(req,res,next) =>{
    try{
-        db.user.findAll()
-        .then((response)=>{
-        console.log(response)
-        return res.status(200).send({users:response})
-      })
+        const users = await db.user.findAll({})
+        return users
    }catch(e){
         res.status(503).send({message:e.message})
    }
@@ -25,6 +22,7 @@ const GetOneUser = async(req) =>{
                 params[key] = req.body[key]
              }
         }
+        console.log(params,'params')
 
          const oneUser = await db.user.findOne({where:params,raw:true})
          console.log(oneUser,'get user')
@@ -35,8 +33,10 @@ const GetOneUser = async(req) =>{
                  oneUser.password
              )
          }
-         console.log(match)
-         if(oneUser!=null && match)return oneUser
+         if(oneUser!=null && match){
+             console.log('aaa')
+             return oneUser
+         }
          else{
              return null
          }

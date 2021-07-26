@@ -13,13 +13,13 @@ module.exports = {
        return res.json({user:userData,token:token})        
 
        }catch(e){
-         return res.json({message:e.message})
+         return res.json(e.message)
        }
     },
     
     logout:async(req,res,next) =>{
         try{
-           req.session.token = null;
+           delete req.session.token 
            res.send(200);
         }catch(e){
             return res.status(401).send({message:e.message})   
