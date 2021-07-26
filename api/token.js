@@ -1,4 +1,5 @@
 require('dotenv').config();
+const e = require('connect-timeout');
 const jwt = require('jsonwebtoken');
 
 const verifyToken = (req,res,next) =>{
@@ -16,7 +17,8 @@ const verifyToken = (req,res,next) =>{
                 else{
                     console.log(req.session,'session__________')
                     console.log(authHeader.split(" ")[1])
-                    return res.status(503).send({message________c:err})
+                    // return res.status(503).send({message________c:err})
+                    return (err==null)?res.status(200).send("再ログインしてください"):res.status(500).send({message:e})
                 }
               
            })         
